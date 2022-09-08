@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="To dO List">
+    <meta name="robots" content="noindex">
+    <meta name="keywords" content="Javascript-code">
+    <meta name="Author" content="Jessica">
+    <title>Techstarter ToDo List</title>
+
+    <!-- Bootstrap CSS -->
+    <!-- https://cdnjs.com/libraries/twitter-bootstrap/5.0.0-beta1 -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta1/css/bootstrap.min.css"
+    />
+
+    <!-- Icons: https://getbootstrap.com/docs/5.0/extend/icons/ -->
+    <!-- https://cdnjs.com/libraries/font-awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+
+        /* adds a todo to the page*/
+        function addTodo() {
+            console.log("add todo task");
+
+            // get the text from input
+            var todotask = $("#todoItem").val();
+
+            console.log("Got this todo: " + todotask);
+
+            // clear the task from the input
+            $("#todo-input").val("");
+
+            //check if a todo task was given, display it if it was
+
+            //create the todo task to send
+
+            var todoItem = {"name": todotask};
+            console.log(todoItem)
+            //send the todo task via ajax
+            $.ajax({
+                url: "http://localhost:5000/todos",
+                type: "POST",
+                data: JSON.stringify(todoItem),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+            }).done(
+
+                function () {
+                    loadTodos();
+                });
+        }
+        /* show error */
+        function showError() {
+            console.log("Error!")
+        }
+        /* show all the todos tasks */
+        function showTodos(tasks) {
+            console.log("Show all todos: " + tasks);
+            for (var i in tasks) {
+
+                 let checked = ''
+                let cssClass = ''
+
+                if (tasks[i]['done'] == "true") {
+                    checked = 'checked'
+                    cssClass = 'done'
+                }
+                let item = `<li class="list-group-item ${cssClass}">
+                                        <input class="form-check-input me-1 rounded-0 checkbox" type="checkbox" ${checked} value="${tasks[i]['id']}"
+                                            aria-label="...">${tasks[i]['name']}
+                                        <button type="button" onClick="deleteTodo('${tasks[i]['id']}')" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </li>`
+
+                $("#todo-section").append(item);
+            }
+        }
+
+        function deleteTodo(id) {
+
+            $.ajax({
+                url: "http://localhost:5000/todos/" + id,
+                crossDomain: true,
+                method: "DELETE",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+            })
+                .done(function () {
+                    loadTodos()
+                });
+        }
+        /* load todos via ajax */
+        function loadTodos() {
+            $("#todo-section").empty();
+            console.log("Load the todos via ajax");
+            //make the ajax request
+            $.ajax({
+                url: "http://localhost:5000/todos",
+                type: "GET",
+                datatype: "json",  // the Data recieved
+                success: showTodos, // on success, show all todos
+                error: showError // on error display an error message
+            });
+        }
+
+        function updateTodoItem(id, done) {
+            $.ajax({
+                url: "http://localhost:5000/todos",
+                crossDomain: true,
+                method: "PUT",
+                data: JSON.stringify({
+                    id: id,
+                    done: done,
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+            })
+                .done(function () {
+                    loadTodos()
+                });
+        }
+
+        /* load todos via ajax */
+        $(document).ready(function () {
+            loadTodos();
+        });
+
+        /* add the click handler to the button*/
+        $(document).ready(function () {
+            $("#add-todo").click(addTodo);
+        });
+
+        /* checkbox function */
+        $(document).on("change", ".checkbox", function () {
+            let id = $(this).prop("value");
+            let checked = $(this).prop("checked");
+
+            updateTodoItem(id, checked);
+        });
+
+
+
+    </script>
+
+
+    <!--CSS Style-->
+   <style>
+    .input{
+        background-color: lightgreen;
+
+    }
+    .btn-close{
+    position: absolute;
+    right: 10px;
+    border: 1px solid black;
+    }
+   input[type=checkbox]:checked{
+            background-color: #a6f1c2;
+            border: 1px solid black;
+            border-radius: 0%;
+        }
+    .done {
+          text-decoration: line-through;
+         }
+
+
+    
+   </style>
+  </head>
+  <body style="background-color:lightgray">
+    <div class="container pt-5">
+        <div class="row">
+        <div class="col-12 offset-md-2 col-md-8">
+            <h1>TechstarterToDo App</h1>
+        <div class="card rounded-0">
+            <div class="card-body">
+                <h1 class="card-title card-titel pb-4">Eintrag hinzufügen</h1>
+                <div class="input-group mb-3 border border-dark">
+                    <span class="input-group-text input">Neue ToDo:</span>
+                    <input type="text" id="todoItem" class="form-control" placeholder="Was muss noch gemacht werden?" aria-label="List">
+                    <span class="input-group-text input btn btn-success border-start-0" id="add-todo" type="button">Eintrag hinzufügen</span>
+                </div>
+
+                <!--To Do List-->
+                <div>
+                    <h2 class="card-subtitle mb-2 pt-5">Aktuelle Todos</h2>
+                </div>
+                <div>
+                    <ul class="list-group list-group-flush" id="todo-section">
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1 rounded-0" type="checkbox" value="" aria-label="...">
+                            A first item
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </li>
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1 rounded-0" type="checkbox" value="" aria-label="...">
+                            A second item
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </li>
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1 rounded-0" type="checkbox" value="" aria-label="...">
+                            A third item
+                            <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Close"></button>
+                        </li>
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1 rounded-0" type="checkbox" value="" aria-label="...">
+                            A fourth item
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </li>
+                        <li class="list-group-item">
+                            <input class="form-check-input me-1 rounded-0" type="checkbox" value="" aria-label="...">
+                            And a fifth one
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+            <p>© 2022 Jessica Donkor</p>
+            </div>
+        </div>
+    </div>
+   
+    
+ 
+
+
+    
+   
+  </body>
+</html>

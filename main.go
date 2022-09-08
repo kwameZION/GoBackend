@@ -139,37 +139,23 @@ func getTodo(context *gin.Context) {
 //*********************************************************************************************************************************************
 // Put (update/put)
 func updateTodo(context *gin.Context) {
-	id := context.Param("id")
-
 	var updateData todo
 
 	//Create payload as todo struct
 	if err := context.BindJSON(&updateData); err != nil {
 		return
 	}
+	for i, item := range todos {
 
-	for _, item := range todos {
-		if item.Id == id {
-			item = updateData
-
-			context.IndentedJSON(http.StatusOK, todos)
-			return
-		}
-	}
-
-	// Determine der highest ID
-	max := 0
-	for _, item := range todos {
-		itemId, _ := strconv.Atoi(item.Id)
-		if itemId > max {
-			max = itemId
+		if item.Id == updateData.Id {
+			todos[i].Done = updateData.Done
 		}
 	}
 
 	// Storing the Data
 	writeCSV()
 
-	context.IndentedJSON(http.StatusNotFound, gin.H{"message": "Todo not found"})
+	context.IndentedJSON(http.StatusOK, todos)
 
 }
 
@@ -189,7 +175,8 @@ func getTodoById(id string) (*todo, error) {
 //*******************************************************************************************************************************************************
 // Function defining the remove(delete function)
 func RemoveIndex(s []todo, index int) []todo {
-	return append(s[:index], s[index+1:]...)
+	copy(todos[index:], todos[index+1:])
+	return todos[:len(todos)-1]
 }
 
 // Delete
@@ -199,14 +186,13 @@ func deleteTodo(context *gin.Context) {
 	for i, todo := range todos {
 		if todo.Id == id {
 			todos = RemoveIndex(todos, i)
-			return
 		}
 	}
 	// storing the data
 	writeCSV()
 
 	//output
-	context.IndentedJSON(http.StatusNotFound, gin.H{"message": "Todo not found"})
+	context.IndentedJSON(http.StatusOK, todos)
 
 }
 

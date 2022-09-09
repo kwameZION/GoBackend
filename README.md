@@ -9,10 +9,12 @@ Bitte stellen Sie sicher folgende Komponenten installiert zu haben
 * Erweiterung für Go in den beliebigen text Editors
 * Github für den herunterziehen des Codes
 
+## Github link
+https://github.com/kwameZION/GoBackend
+
 Anschließend kann mittels 
-````
-go run .
-`````
+* go run .
+
 direkt in diesem Verzeichnis gearbeitet werden.
 
 ## Benutzung

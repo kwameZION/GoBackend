@@ -6,6 +6,7 @@ Die API wurde mit Golang entwickelt
 ## Golang- based
 Bitte stellen Sie sicher folgende Komponenten installiert zu haben
 * Golang auf den Desktop
+    * https://go.dev/doc/install
 * Erweiterung für Go in den beliebigen text Editors
 * Github für den herunterziehen des Codes
 
